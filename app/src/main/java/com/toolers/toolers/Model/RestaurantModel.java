@@ -10,14 +10,14 @@ public class RestaurantModel {
     public String id;
     private Date endTime;
     public String name,type;
-    private long discountCount,freeCount;
+    private long discountCount,freeCost,freeCount;
     private boolean valid;
-    private double shippingCost,freeCost,additionalCost;
+    private double shippingCost,additionalCost;
     private double discountRatio,discountPerItem,discountPrice;
     public String option;
 
     public RestaurantModel(String id,String name,Date endTime,
-                           String type,double shippingCost,double freeCost,
+                           String type,double shippingCost,long freeCost,
                            long freeCount,long discountCount,
                            double discountRatio,double discountPerItem,
                            double discountPrice,double additionalCost,String option,boolean valid){

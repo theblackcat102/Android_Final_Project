@@ -26,7 +26,22 @@ import com.toolers.toolers.Adapter.RestaurantAdapter;
 import com.toolers.toolers.Model.RestaurantModel;
 
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Headers;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -34,19 +49,24 @@ public class MainActivity extends AppCompatActivity
     private String TAG = "MainActivity";
     private ProgressDialog progressDialog;
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter restaurantAdapter;
+    private RestaurantAdapter restaurantAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private List<RestaurantModel> restaurantList;
+    private ArrayList<RestaurantModel> restaurantList;
+    private JSONArray json;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        restaurantList = new ArrayList<>();
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        setSupportActionBar(toolbar);
+        restaurantAdapter = new RestaurantAdapter(restaurantList,getApplicationContext());
+        mRecyclerView.setAdapter(restaurantAdapter);
+
         asyncGet = new AsyncGetRestaurant(this);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -64,8 +84,14 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        if(networkAvailable())
-            new LoadingAsyncTask().execute();
+        if(networkAvailable()){
+            try{
+                updateUI();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
     }
 
     @Override
@@ -137,6 +163,7 @@ public class MainActivity extends AppCompatActivity
 
     private class LoadingAsyncTask extends AsyncTask<Void, Void, Void> {
         ProgressDialog Asycdialog = new ProgressDialog(MainActivity.this);
+        ArrayList<RestaurantModel> resultData;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -145,7 +172,8 @@ public class MainActivity extends AppCompatActivity
 
         protected Void doInBackground(Void... args) {
             try {
-                restaurantList = asyncGet.run();
+                resultData = asyncGet.run();
+                Log.d(TAG,"resulData "+resultData.size());
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -154,9 +182,8 @@ public class MainActivity extends AppCompatActivity
 
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            if(restaurantList.size() > 0){
-                restaurantAdapter = new RestaurantAdapter(restaurantList,getApplicationContext());
-                mRecyclerView.setAdapter(restaurantAdapter);
+            if(AsyncGetRestaurant.restaurantData != null){
+                restaurantAdapter.setNewData(AsyncGetRestaurant.restaurantData);
             }
             Asycdialog.dismiss();
         }
@@ -167,4 +194,49 @@ public class MainActivity extends AppCompatActivity
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
+
+    public void updateUI(){
+        final OkHttpClient client = new OkHttpClient();
+        final Request request = new Request.Builder()
+                .url(this.getResources().getString(R.string.restaurant_list_urls))
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try (ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+                    Headers responseHeaders = response.headers();
+                    for (int i = 0, size = responseHeaders.size(); i < size; i++) {
+                        Log.d(TAG,responseHeaders.name(i) + ": " + responseHeaders.value(i));
+                    }
+                    try {
+                        JSONParser parser = new JSONParser();
+                        json = (JSONArray) parser.parse(responseBody.string());
+                    }catch (Exception e){
+                        e.printStackTrace(); // handle json parsing exception
+                    }
+                    Iterator<JSONObject> iterator = json.iterator();
+                    while(iterator.hasNext()){
+                        JSONObject current = iterator.next();
+                        RestaurantModel result = AsyncGetRestaurant.parseRestaurant(current);
+                        restaurantList.add(result);
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            restaurantAdapter.setNewData(restaurantList);
+                        }
+                    });
+
+                }
+            }
+        });
+    }
+
 }
