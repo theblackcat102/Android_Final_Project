@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Toolers</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="restaurant_list_urls">http://172.104.58.179/api/restaurants</string>
+</resources>
