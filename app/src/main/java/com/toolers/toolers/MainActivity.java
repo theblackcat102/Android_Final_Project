@@ -1,6 +1,9 @@
 package com.toolers.toolers;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -18,36 +21,33 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.toolers.toolers.APIWrapper.AsyncGet;
+import com.toolers.toolers.APIWrapper.AsyncGetRestaurant;
 import com.toolers.toolers.Adapter.RestaurantAdapter;
+import com.toolers.toolers.Model.RestaurantModel;
 
-import org.json.JSONObject;
-import org.json.simple.JSONArray;
 
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    private AsyncGet asyncGet;
+    private AsyncGetRestaurant asyncGet;
     private String TAG = "MainActivity";
     private ProgressDialog progressDialog;
     private RecyclerView mRecyclerView;
-    private RestaurantAdapter restaurantAdapter;
+    private RecyclerView.Adapter restaurantAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private List<RestaurantAdapter> restaurantAdapterList;
+    private List<RestaurantModel> restaurantList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //restaurantAdapter = new RestaurantAdapter();
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setAdapter(restaurantAdapter);
         mRecyclerView.setLayoutManager(mLayoutManager);
         setSupportActionBar(toolbar);
-        asyncGet = new AsyncGet(this);
+        asyncGet = new AsyncGetRestaurant(this);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,6 +64,8 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        if(networkAvailable())
+            new LoadingAsyncTask().execute();
     }
 
     @Override
@@ -137,19 +139,13 @@ public class MainActivity extends AppCompatActivity
         ProgressDialog Asycdialog = new ProgressDialog(MainActivity.this);
         @Override
         protected void onPreExecute() {
-
             super.onPreExecute();
-            Asycdialog.setMessage("Loading...");
             Asycdialog.show();
         }
 
         protected Void doInBackground(Void... args) {
-            JSONArray restaurantItem;
             try {
-                restaurantItem = asyncGet.run();
-                for(Object restaurantDetail:restaurantItem){
-                    restaurantDetail.toString();
-                }
+                restaurantList = asyncGet.run();
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -158,7 +154,17 @@ public class MainActivity extends AppCompatActivity
 
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
+            if(restaurantList.size() > 0){
+                restaurantAdapter = new RestaurantAdapter(restaurantList,getApplicationContext());
+                mRecyclerView.setAdapter(restaurantAdapter);
+            }
             Asycdialog.dismiss();
         }
+    }
+    private boolean networkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }
