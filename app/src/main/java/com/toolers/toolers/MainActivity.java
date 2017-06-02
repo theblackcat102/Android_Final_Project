@@ -135,17 +135,7 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_camera) {
             // Handle the camera action
         } else if (id == R.id.nav_gallery) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Log.d(TAG,"Start network get"+asyncGet.run());
 
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-            }).run();
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
@@ -161,33 +151,6 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private class LoadingAsyncTask extends AsyncTask<Void, Void, Void> {
-        ProgressDialog Asycdialog = new ProgressDialog(MainActivity.this);
-        ArrayList<RestaurantModel> resultData;
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            Asycdialog.show();
-        }
-
-        protected Void doInBackground(Void... args) {
-            try {
-                resultData = asyncGet.run();
-                Log.d(TAG,"resulData "+resultData.size());
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            if(AsyncGetRestaurant.restaurantData != null){
-                restaurantAdapter.setNewData(AsyncGetRestaurant.restaurantData);
-            }
-            Asycdialog.dismiss();
-        }
-    }
     private boolean networkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
