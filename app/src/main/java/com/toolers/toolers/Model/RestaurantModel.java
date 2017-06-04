@@ -4,7 +4,21 @@ import java.util.Date;
 
 /**
  * Created by theblackcat on 2/6/17.
- */
+ * "id":"59302917c34f80d082a0b389",
+ "end_time":"2017-05-22T15:30:00Z",
+ "name":"3Q 脆皮雞排",
+ "type":"addition",
+ "valid":true,
+ "shipping_cost":30,
+ "addition_cost":10,
+ "free_cost":500,
+ "free_count":81000,
+ "discount_ratio":0.95,
+ "discount_per_item":0,
+ "discount_price":800,
+ "discount_count":81000,
+ "option":"果汁尚未拍賣, 滿500免運，滿800再打95折",
+ * */
 
 public class RestaurantModel {
     public String id;
@@ -40,20 +54,6 @@ public class RestaurantModel {
     public String getName(){
         return name;
     }
+
+
 }
-/*
-* "id":"59302917c34f80d082a0b389",
-"end_time":"2017-05-22T15:30:00Z",
-"name":"3Q 脆皮雞排",
-"type":"addition",
-"valid":true,
-"shipping_cost":30,
-"addition_cost":10,
-"free_cost":500,
-"free_count":81000,
-"discount_ratio":0.95,
-"discount_per_item":0,
-"discount_price":800,
-"discount_count":81000,
-"option":"果汁尚未拍賣, 滿500免運，滿800再打95折",
-* */

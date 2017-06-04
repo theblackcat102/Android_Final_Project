@@ -60,7 +60,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
 
         public ViewHolder(View itemView) {
             super(itemView);
-            image = (ImageView) itemView.findViewById(R.id.image);
+            image =git add ./ (ImageView) itemView.findViewById(R.id.image);
             text = (TextView) itemView.findViewById(R.id.name);
         }
     }
