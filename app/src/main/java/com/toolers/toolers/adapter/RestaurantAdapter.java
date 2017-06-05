@@ -1,19 +1,18 @@
-package com.toolers.toolers.Adapter;
+package com.toolers.toolers.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.Button;
 import android.widget.TextView;
 
-import com.toolers.toolers.Model.RestaurantModel;
+import com.toolers.toolers.MainActivity;
+import com.toolers.toolers.model.RestaurantModel;
 import com.toolers.toolers.R;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by theblackcat on 2/6/17.
@@ -23,11 +22,11 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
     private static final String TAG = "RestaurantAdapter";
     private ArrayList<RestaurantModel> items;
 
-    private Context mContext;
+    private MainActivity mContext;
 
     public RestaurantAdapter(ArrayList<RestaurantModel> items, Context mContext) {
         this.items = items;
-        this.mContext = mContext;
+        this.mContext = (MainActivity)mContext;
     }
 
     @Override public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -43,29 +42,37 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
     @Override public void onBindViewHolder(ViewHolder holder, int position) {
         RestaurantModel item = items.get(position);
 
-        holder.text.setText(item.getName());
-
-        holder.image.setImageBitmap(null);
-
-        holder.itemView.setTag(item);
+        holder.name.setText(item.getName());
+        holder.option.setText(item.option);
+        holder.model = item;
     }
 
     @Override public int getItemCount() {
         return items.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public ImageView image;
-        public TextView text;
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        TextView name;
+        TextView option;
+        Button startOrder;
+        RestaurantModel model;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
-            image =git add ./ (ImageView) itemView.findViewById(R.id.image);
-            text = (TextView) itemView.findViewById(R.id.name);
+            name = (TextView) itemView.findViewById(R.id.name);
+            option = (TextView) itemView.findViewById(R.id.option);
+            startOrder = (Button) itemView.findViewById(R.id.order_btn);
+            startOrder.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            mContext.onRestaruantClick(model);
         }
     }
+
     public void setNewData(ArrayList<RestaurantModel> data) {
-        items.addAll(data);
+        items = data;
         notifyDataSetChanged();
     }
 }
