@@ -1,10 +1,12 @@
 package com.toolers.toolers;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CheckableImageButton;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -66,6 +68,7 @@ public class MenuActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.d(TAG,"clicked");
+                startCheckoutActivity();
             }
         });
         mListView = (ListView) findViewById(R.id.restaurant_list_view);
@@ -147,5 +150,9 @@ public class MenuActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+    public void startCheckoutActivity(){
+        Intent intent  = new Intent(this, Checkout.class);
+        startActivity(intent);
     }
 }

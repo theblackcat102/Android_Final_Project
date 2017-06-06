@@ -18,4 +18,5 @@
     <string name="ok">確定</string>
     <string name="order">開始點餐</string>
     <string name="zero">0</string>
+    <string name="title_activity_checkout">結帳</string>
 </resources>
