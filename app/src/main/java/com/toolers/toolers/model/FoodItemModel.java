@@ -20,7 +20,6 @@ public class FoodItemModel {
         price = (Long) json.get("price");
         option = (String) json.get("option");
     }
-
     public String getName() {
         return name;
     }

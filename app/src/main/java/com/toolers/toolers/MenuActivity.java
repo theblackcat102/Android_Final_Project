@@ -5,6 +5,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.andremion.counterfab.CounterFab;
 import com.toolers.toolers.adapter.MenuAdapter;
 import com.toolers.toolers.adapter.ViewAnimationUtils;
 import com.toolers.toolers.apiWrapper.AsyncGetRestaurant;
@@ -47,6 +49,8 @@ public class MenuActivity extends AppCompatActivity {
     private MenuAdapter menuAdapter;
     private RestaurantModel restaurantModel;
     private ArrayList<FoodModel> foods;
+    private FloatingActionButton selectButton;
+    private CounterFab counterFab;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +60,14 @@ public class MenuActivity extends AppCompatActivity {
         if(getSupportActionBar() != null)
             getSupportActionBar().setTitle(getString(R.string.restaurant_activity_title));
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+        selectButton = (FloatingActionButton) findViewById(R.id.fab_menu);
+        counterFab = (CounterFab)findViewById(R.id.fab_menu); // setCount(10);
+        selectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG,"clicked");
+            }
+        });
         mListView = (ListView) findViewById(R.id.restaurant_list_view);
         menuAdapter = new MenuAdapter(this);
         mListView.setAdapter(menuAdapter);

@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.andremion.counterfab.CounterFab;
 import com.toolers.toolers.apiWrapper.AsyncGetRestaurant;
 import com.toolers.toolers.adapter.RestaurantAdapter;
 import com.toolers.toolers.model.RestaurantModel;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity
     private RestaurantAdapter restaurantAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private ArrayList<RestaurantModel> restaurantList;
+    private int selectedCount = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,15 +70,6 @@ public class MainActivity extends AppCompatActivity
         mRecyclerView.setLayoutManager(mLayoutManager);
         restaurantAdapter = new RestaurantAdapter(restaurantList, this);
         mRecyclerView.setAdapter(restaurantAdapter);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
