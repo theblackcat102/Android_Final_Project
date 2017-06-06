@@ -199,7 +199,6 @@ public class MainActivity extends AppCompatActivity
                             restaurantAdapter.setNewData(restaurantList);
                         }
                     });
-
                 }
             }
         });
