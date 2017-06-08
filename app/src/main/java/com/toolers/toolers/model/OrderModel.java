@@ -2,6 +2,7 @@ package com.toolers.toolers.model;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,15 +20,25 @@ public class OrderModel {
     private String id;
     private Date time;
     private String status;
-    private String dormName;
-    private String dormNumber;
     private String coupons[];
-    private String name;
-    private String phone;
-    private OrderItemModel orders[];
     private long originalCost;
     private long totalCost;
     private Date arriveTime;
+
+    //
+    private String dormName;
+    private String dormNumber;
+    private String name;
+    private String phone;
+    private OrderItemModel orders[];
+
+
+    private OrderModel() {}
+
+    public OrderModel(String json) throws ParseException, org.json.simple.parser.ParseException {
+        this((JSONObject)(new JSONParser().parse(json)));
+    }
+
     public OrderModel(JSONObject json) throws ParseException{
         id = (String) json.get("id");
         time = DATE_FORMAT.parse((String)json.get("time"));
@@ -53,39 +64,71 @@ public class OrderModel {
     public String getId() {
         return id;
     }
+
     public Date getTime() {
         return time;
     }
+
     public String getStatusOpen() {
         return status;
     }
-    public String getDormName() {
-        return dormName;
-    }
-    public String getDormNumber() {
-        return dormNumber;
-    }
+
     public String[] getCoupons() {
         return coupons;
     }
-    public String getName() {
-        return name;
-    }
-    public String getPhone() {
-        return phone;
-    }
-    public OrderItemModel[] getOrders() {
-        return orders;
-    }
+
     public long getOriginalCost() {
         return originalCost;
     }
+
     public long getTotalCost() {
         return totalCost;
     }
+
     public Date getArriveTime() {
         return arriveTime;
     }
+
+    public String getDormName() {
+        return dormName;
+    }
+    private OrderModel setDormName(String dormName) {
+        this.dormName = dormName;
+        return this;
+    }
+
+    public String getDormNumber() {
+        return dormNumber;
+    }
+    private OrderModel setDormNumber(String dormNumber) {
+        this.dormNumber = dormNumber;
+        return this;
+    }
+
+    public String getName() {
+        return name;
+    }
+    private OrderModel setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+    private OrderModel setPhone(String phone) {
+        this.phone = phone;
+        return this;
+    }
+
+    public OrderItemModel[] getOrders() {
+        return orders;
+    }
+    private OrderModel setOrders(OrderItemModel[] orders) {
+        this.orders = orders;
+        return this;
+    }
+
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put("id", id);
@@ -107,5 +150,19 @@ public class OrderModel {
             ordersArray.add(orderItemModel.toJSON());
         json.put("orders", ordersArray);
         return json;
+    }
+
+    public static OrderModel build(ShoppingCartModel shoppingCart, UserModel user) {
+        OrderModel order = new OrderModel().
+                setDormName(user.getDormName()).
+                setDormNumber(user.getDormNumber()).
+                setName(user.getName()).
+                setPhone(user.getPhone());
+        if(shoppingCart.getCurrentType() == ShoppingCartModel.MAIN)
+            order.setOrders(new OrderItemModel[]{OrderItemModel.buildMain(shoppingCart)});
+        else
+            order.setOrders(new OrderItemModel[]{OrderItemModel.buildMain(shoppingCart),
+                    OrderItemModel.buildAdditional(shoppingCart)});
+        return null;
     }
 }

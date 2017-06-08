@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
+import com.toolers.toolers.MenuActivity;
 import com.toolers.toolers.R;
 import com.toolers.toolers.model.FoodModel;
 
@@ -21,7 +22,7 @@ public class SingleMenuHolder extends MenuHolder implements View.OnClickListener
     protected TextView price;
     protected TextView name;
     protected Button number;
-    protected FoodModel food;
+    protected Button addToCart;
 
     protected Context mContext;
 
@@ -31,32 +32,40 @@ public class SingleMenuHolder extends MenuHolder implements View.OnClickListener
         name = (TextView) itemView.findViewById(R.id.name);
         price = (TextView) itemView.findViewById(R.id.price);
         number = (Button) itemView.findViewById(R.id.number_picker);
+        addToCart = (Button) itemView.findViewById(R.id.add_to_cart);
         number.setOnClickListener(this);
+        addToCart.setOnClickListener(this);
     }
     @Override
     public void onClick(View view) {
-        final Dialog dialog = new Dialog(mContext);
-        dialog.setContentView(R.layout.number_picker);
-        Button ok = (Button) dialog.findViewById(R.id.ok);
-        Button cancel = (Button) dialog.findViewById(R.id.cancel);
-        final NumberPicker numberPicker = (NumberPicker) dialog.findViewById(R.id.number_picker);
-        numberPicker.setMaxValue(100);
-        numberPicker.setMinValue(0);
-        numberPicker.setWrapSelectorWheel(false);
-        ok.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                number.setText(String.valueOf(numberPicker.getValue()));
-                dialog.dismiss();
-            }
-        });
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
-        dialog.show();
+        if(view.getId() == R.id.number_picker) {
+            final Dialog dialog = new Dialog(mContext);
+            dialog.setContentView(R.layout.number_picker);
+            Button ok = (Button) dialog.findViewById(R.id.ok);
+            Button cancel = (Button) dialog.findViewById(R.id.cancel);
+            final NumberPicker numberPicker = (NumberPicker) dialog.findViewById(R.id.number_picker);
+            numberPicker.setMaxValue(100);
+            numberPicker.setMinValue(0);
+            numberPicker.setWrapSelectorWheel(false);
+            ok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    number.setText(String.valueOf(numberPicker.getValue()));
+                    dialog.dismiss();
+                }
+            });
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+            dialog.show();
+        } else if(view.getId() == R.id.add_to_cart) {
+            FoodModel food = getOrderedFood();
+            long numOfFood = Long.parseLong(number.getText().toString());
+            ((MenuActivity)mContext).addFoodToCart(food, numOfFood);
+        }
     }
 
     @Override
@@ -69,5 +78,9 @@ public class SingleMenuHolder extends MenuHolder implements View.OnClickListener
     @Override
     public String getType() {
         return FoodModel.SINGLE;
+    }
+
+    protected FoodModel getOrderedFood() {
+        return food;
     }
 }

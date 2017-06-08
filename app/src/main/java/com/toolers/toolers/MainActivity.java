@@ -198,7 +198,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onRestaruantClick(RestaurantModel restaurantModel) {
-        Log.i(TAG, restaurantModel.name);
         Intent menuActivity = new Intent(this, MenuActivity.class);
         menuActivity.putExtra(MenuActivity.EXTRA_RESTAURANT_MODEL, restaurantModel);
         startActivity(menuActivity);

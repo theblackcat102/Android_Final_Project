@@ -9,4 +9,5 @@
     <dimen name="restaurant_text_size_large">20sp</dimen>
     <dimen name="restaurant_text_size">16sp</dimen>
     <dimen name="card_height">100dp</dimen>
+    <dimen name="checkout_list_item_option_width">100dp</dimen>
 </resources>

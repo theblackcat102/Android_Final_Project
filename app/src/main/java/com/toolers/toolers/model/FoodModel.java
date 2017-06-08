@@ -2,9 +2,12 @@ package com.toolers.toolers.model;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -19,6 +22,19 @@ public class FoodModel extends FoodItemModel {
     private List<List<FoodItemModel>> rOptions;
     private List<String> aName;
     private List<List<FoodItemModel>> aOptions;
+
+    private FoodModel() {
+        super();
+        rName = new ArrayList<>();
+        rOptions = new ArrayList<>();
+        aName = new ArrayList<>();
+        aOptions = new ArrayList<>();
+    }
+
+    public FoodModel(String json) throws ParseException, org.json.simple.parser.ParseException {
+        this((JSONObject)(new JSONParser().parse(json)));
+    }
+
     public FoodModel(JSONObject json) throws ParseException {
         super((JSONObject)json.get("main"));
         type = (String) json.get("type");
@@ -52,14 +68,29 @@ public class FoodModel extends FoodItemModel {
     public String getType() {
         return type;
     }
+    private FoodModel setType(String type) {
+        this.type = type;
+        return this;
+    }
     public List<String> getReqiredOptionName() {
         return rName;
+    }
+    private FoodModel setReqiredOptionName(List<String> rName) {
+        for(int i = 0; i < rName.size(); i++)
+            this.rName.add(rName.get(i));
+        return this;
     }
     public List<List<FoodItemModel>> getReqiredOptions() {
         return rOptions;
     }
     public List<String> getAddtitonalOptionName() {
         return aName;
+    }
+
+    private FoodModel setAdditionalOptionName(List<String> aName) {
+        for(int i = 0; i < aName.size(); i++)
+            this.aName.add(aName.get(i));
+        return this;
     }
     public List<List<FoodItemModel>> getAdditionalOptions() {
         return aOptions;
@@ -92,5 +123,25 @@ public class FoodModel extends FoodItemModel {
         }
         json.put("addition_option", aOptionArray);
         return json;
+    }
+
+    public FoodModel buildForOrder(int requiredSelection[], int additionalSelection[]) {
+        FoodModel foodModel = new FoodModel();
+        foodModel.setType(type).
+                setReqiredOptionName(rName).
+                setAdditionalOptionName(aName);
+                setName(getName()).
+                setOption(getOption()).
+                setPrice(getPrice());
+        for(int i = 0; i < rOptions.size(); i++)
+            foodModel.getReqiredOptions().add(Collections.singletonList(rOptions.get(i).get(requiredSelection[i])));
+
+        for(int i = 0; i < aOptions.size(); i++)
+            if(additionalSelection[i] >= 0)
+                foodModel.getAdditionalOptions().add(Collections.singletonList(aOptions.get(i).get(additionalSelection[i])));
+            else
+                foodModel.getAdditionalOptions().add(Collections.<FoodItemModel>emptyList());
+
+        return this;
     }
 }

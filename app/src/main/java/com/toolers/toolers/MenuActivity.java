@@ -6,11 +6,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CheckableImageButton;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -24,6 +21,7 @@ import com.toolers.toolers.adapter.ViewAnimationUtils;
 import com.toolers.toolers.apiWrapper.AsyncGetRestaurant;
 import com.toolers.toolers.model.FoodModel;
 import com.toolers.toolers.model.RestaurantModel;
+import com.toolers.toolers.model.ShoppingCartModel;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -46,22 +44,37 @@ import okhttp3.ResponseBody;
 
 public class MenuActivity extends AppCompatActivity {
     public static final String EXTRA_RESTAURANT_MODEL = "RESTAURANT_MODEL";
+    public static final String EXTRA_SHOPPING_CART = "SHOPPING_CART";
     public static final String TAG = "MenuActivity";
+
+    // UI
     private ListView mListView;
     private MenuAdapter menuAdapter;
     private RestaurantModel restaurantModel;
     private ArrayList<FoodModel> foods;
     private FloatingActionButton selectButton;
     private CounterFab counterFab;
+
+    // Data Model
+    private ShoppingCartModel shoppingCart;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        restaurantModel = getIntent().getExtras().getParcelable(EXTRA_RESTAURANT_MODEL);
+        shoppingCart = getIntent().getExtras().getParcelable(EXTRA_SHOPPING_CART);
+        if(shoppingCart == null)
+            shoppingCart = new ShoppingCartModel(ShoppingCartModel.MAIN);
+
         setContentView(R.layout.restaurant_activity);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if(getSupportActionBar() != null)
-            getSupportActionBar().setTitle(getString(R.string.restaurant_activity_title));
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+        if(getSupportActionBar() != null) {
+            String title = restaurantModel.getName();
+            if(shoppingCart.getCurrentType() == ShoppingCartModel.ADDITIONAL)
+                title = "合併加點 " + title;
+            getSupportActionBar().setTitle(title);
+        }
         selectButton = (FloatingActionButton) findViewById(R.id.fab_menu);
         counterFab = (CounterFab)findViewById(R.id.fab_menu); // setCount(10);
         selectButton.setOnClickListener(new View.OnClickListener() {
@@ -81,7 +94,6 @@ public class MenuActivity extends AppCompatActivity {
                 ViewAnimationUtils.toggle(view, position, menuAdapter);
             }
         });
-        restaurantModel = getIntent().getExtras().getParcelable(EXTRA_RESTAURANT_MODEL);
         if(networkAvailable()) {
             try{
                 updateMenu();
@@ -151,8 +163,16 @@ public class MenuActivity extends AppCompatActivity {
             }
         });
     }
+
+    public void addFoodToCart(FoodModel food, long numOfFood) {
+        shoppingCart.addFood(food, numOfFood);
+        Toast.makeText(this, "新增 " + food.getName() + " * " + numOfFood, Toast.LENGTH_SHORT).show();
+    }
+
     public void startCheckoutActivity(){
-        Intent intent  = new Intent(this, Checkout.class);
-        startActivity(intent);
+        Intent checkoutActivity  = new Intent(this, CheckoutActivity.class);
+        checkoutActivity.putExtra(EXTRA_SHOPPING_CART, shoppingCart);
+        startActivity(checkoutActivity);
+        overridePendingTransition(R.anim.enter, R.anim.exit);
     }
 }
