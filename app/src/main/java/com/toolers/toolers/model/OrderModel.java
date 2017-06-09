@@ -32,8 +32,20 @@ public class OrderModel {
     private String phone;
     private OrderItemModel orders[];
 
-
-    private OrderModel() {}
+    private OrderModel() {
+        id = "";
+        time = new Date();
+        status = "";
+        coupons = new String[0];
+        originalCost = 0;
+        totalCost = 0;
+        arriveTime = new Date();
+        dormName = "";
+        dormNumber = "";
+        name = "";
+        phone = "";
+        orders = new OrderItemModel[0];
+    }
 
     public OrderModel(String json) throws ParseException, org.json.simple.parser.ParseException {
         this((JSONObject)(new JSONParser().parse(json)));
@@ -158,11 +170,21 @@ public class OrderModel {
                 setDormNumber(user.getDormNumber()).
                 setName(user.getName()).
                 setPhone(user.getPhone());
-        if(shoppingCart.getCurrentType() == ShoppingCartModel.MAIN)
+        if(shoppingCart.getAdditionalFoods().size() == 0)
             order.setOrders(new OrderItemModel[]{OrderItemModel.buildMain(shoppingCart)});
         else
             order.setOrders(new OrderItemModel[]{OrderItemModel.buildMain(shoppingCart),
                     OrderItemModel.buildAdditional(shoppingCart)});
         return null;
+    }
+
+    public static OrderModel buildForCost(ShoppingCartModel shoppingCart) {
+        OrderModel order = new OrderModel();
+        if(shoppingCart.getAdditionalFoods().size() == 0)
+            order.setOrders(new OrderItemModel[]{OrderItemModel.buildMain(shoppingCart)});
+        else
+            order.setOrders(new OrderItemModel[]{OrderItemModel.buildMain(shoppingCart),
+                    OrderItemModel.buildAdditional(shoppingCart)});
+        return order;
     }
 }

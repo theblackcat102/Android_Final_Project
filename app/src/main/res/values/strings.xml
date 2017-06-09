@@ -10,6 +10,7 @@
     <string name="restaurant_list_urls">http://172.104.58.179/api/restaurants</string>
     <string name="restaurant_urls">http://172.104.58.179/api/restaurants/id/</string>
     <string name="restaurant_addition">http://172.104.58.179/api/restaurants/addition</string>
+    <string name="orders_cost">http://172.104.58.179/api/orders/cost</string>
 
 
     <string name="restaurant_activity_title">選擇餐點</string>
@@ -21,4 +22,7 @@
     <string name="ok">確定</string>
     <string name="order">開始點餐</string>
     <string name="zero">0</string>
+    <string name="original_cost">原價:</string>
+    <string name="total_cost">總計:</string>
+    <string name="checkout">結帳</string>
 </resources>

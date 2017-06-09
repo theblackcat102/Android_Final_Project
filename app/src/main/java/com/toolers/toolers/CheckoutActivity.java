@@ -10,8 +10,11 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.toolers.toolers.adapter.CheckOutMainAdapter;
+import com.toolers.toolers.model.OrderModel;
 import com.toolers.toolers.model.RestaurantModel;
 import com.toolers.toolers.model.ShoppingCartModel;
 
@@ -23,12 +26,15 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Headers;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
@@ -40,6 +46,9 @@ public class CheckoutActivity extends AppCompatActivity {
     private ShoppingCartModel shoppingCart;
     private List<RestaurantModel> additionalRestaurant;
     private CoordinatorLayout coordinatorLayout;
+    private TextView originalCost;
+    private TextView totalCost;
+    private Button checkout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +58,9 @@ public class CheckoutActivity extends AppCompatActivity {
 
         mainRecyclerView = (RecyclerView) findViewById(R.id.main_recycle_view);
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinateLayout);
+        originalCost = (TextView) findViewById(R.id.original_cost);
+        totalCost = (TextView) findViewById(R.id.total_cost);
+        checkout = (Button) findViewById(R.id.checkout);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         mainAdapter = new CheckOutMainAdapter(this, coordinatorLayout);
         mainRecyclerView.setAdapter(mainAdapter);
@@ -60,6 +72,7 @@ public class CheckoutActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         getAdditionRestaurant();
+        updateOrderCost();
     }
 
     @Override
@@ -68,6 +81,7 @@ public class CheckoutActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 this.shoppingCart = data.getParcelableExtra(MenuActivity.EXTRA_SHOPPING_CART);
                 getAdditionRestaurant();
+                updateOrderCost();
             }
         }
     }
@@ -146,6 +160,55 @@ public class CheckoutActivity extends AppCompatActivity {
                         return;
                     }
                     mainAdapter.setData(shoppingCart, additionalRestaurant);
+                }
+            }
+        });
+    }
+
+    public void updateOrderCost() {
+        OrderModel order = OrderModel.buildForCost(shoppingCart);
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(JSON, order.toJSON().toJSONString());
+        String url = getString(R.string.orders_cost);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@Nullable Call call, @Nullable IOException e) {
+                if (e != null)
+                    e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@Nullable Call call, @Nullable Response response) throws IOException {
+                try (ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful())
+                        throw new IOException("Unexpected code " + response);
+
+                    Headers responseHeaders = response.headers();
+                    for (int i = 0, size = responseHeaders.size(); i < size; i++) {
+                        Log.d(TAG, responseHeaders.name(i) + ": " + responseHeaders.value(i));
+                    }
+                    JSONObject json;
+                    try {
+                        JSONParser parser = new JSONParser();
+                        json = (JSONObject) parser.parse(responseBody.string());
+                    } catch (Exception e) {
+                        e.printStackTrace(); // handle json parsing exception
+                        return;
+                    }
+                    final long originalCostNum = (long) json.get("origin_cost");
+                    final long totalCostNum = (long) json.get("total_cost");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            originalCost.setText(String.format(Locale.TAIWAN, "%d", originalCostNum));
+                            totalCost.setText(String.format(Locale.TAIWAN, "%d", totalCostNum));
+                        }
+                    });
                 }
             }
         });

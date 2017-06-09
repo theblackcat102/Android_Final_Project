@@ -243,9 +243,11 @@ public class CheckOutMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                                     shoppingCart.getMainFoods().add(position, food);
                                     shoppingCart.getNumOfMainFood().add(position, numOfFood);
                                     notifyItemInserted(adapterPosition);
+                                    ((CheckoutActivity)mContext).updateOrderCost();
                                 }
                             });
                     snackbar.show();
+                    ((CheckoutActivity)mContext).updateOrderCost();
                     break;
                 }
                 case ADDITION_FOOD: {
@@ -264,9 +266,11 @@ public class CheckOutMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                                     shoppingCart.getAdditionalFoods().add(position, food);
                                     shoppingCart.getNumOfAdditionalFood().add(position, numOfFood);
                                     notifyItemInserted(adapterPosition);
+                                    ((CheckoutActivity)mContext).updateOrderCost();
                                 }
                             });
                     snackbar.show();
+                    ((CheckoutActivity)mContext).updateOrderCost();
                     break;
                 }
             }
