@@ -10,6 +10,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -43,45 +44,48 @@ import okhttp3.ResponseBody;
  */
 
 public class MenuActivity extends AppCompatActivity {
-    public static final String EXTRA_RESTAURANT_MODEL = "RESTAURANT_MODEL";
     public static final String EXTRA_SHOPPING_CART = "SHOPPING_CART";
+    public static final String EXTRA_RETURN_TYPE = "EXTRA_RETURN_TYPE";
+    public static final String MENU_ACTIVITY = "MENU_ACTIVITY";
+    public static final String MAIN_ACTIVITY = "MAIN_ACTIVITY";
     public static final String TAG = "MenuActivity";
+    public static final int RESULT_CHECKOUR = 1;
 
     // UI
     private ListView mListView;
     private MenuAdapter menuAdapter;
-    private RestaurantModel restaurantModel;
     private ArrayList<FoodModel> foods;
-    private FloatingActionButton selectButton;
     private CounterFab counterFab;
 
     // Data Model
     private ShoppingCartModel shoppingCart;
+    private String returnType;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        restaurantModel = getIntent().getExtras().getParcelable(EXTRA_RESTAURANT_MODEL);
         shoppingCart = getIntent().getExtras().getParcelable(EXTRA_SHOPPING_CART);
-        if(shoppingCart == null)
-            shoppingCart = new ShoppingCartModel(ShoppingCartModel.MAIN);
+        returnType = getIntent().getExtras().getString(EXTRA_RETURN_TYPE);
 
         setContentView(R.layout.restaurant_activity);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if(getSupportActionBar() != null) {
-            String title = restaurantModel.getName();
-            if(shoppingCart.getCurrentType() == ShoppingCartModel.ADDITIONAL)
-                title = "合併加點 " + title;
+            String title = shoppingCart.getCurrentType() == ShoppingCartModel.MAIN ?
+                    shoppingCart.getMainRestaurantName() :
+                    "合併加點 " + shoppingCart.getAdditionalRestaurantName();
             getSupportActionBar().setTitle(title);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        selectButton = (FloatingActionButton) findViewById(R.id.fab_menu);
         counterFab = (CounterFab)findViewById(R.id.fab_menu); // setCount(10);
-        selectButton.setOnClickListener(new View.OnClickListener() {
+        counterFab.setCount(shoppingCart.getAdditionalFoods().size() + shoppingCart.getMainFoods().size());
+        counterFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG,"clicked");
-                startCheckoutActivity();
+                if(returnType.equals(MENU_ACTIVITY))
+                    finisActivity();
+                if(returnType.equals(MAIN_ACTIVITY))
+                    startCheckoutActivity();
             }
         });
         mListView = (ListView) findViewById(R.id.restaurant_list_view);
@@ -91,7 +95,7 @@ public class MenuActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Log.i(TAG, "onItemClick");
-                ViewAnimationUtils.toggle(view, position, menuAdapter);
+                //ViewAnimationUtils.toggle(view, position, menuAdapter);
             }
         });
         if(networkAvailable()) {
@@ -106,8 +110,40 @@ public class MenuActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        overridePendingTransition(R.anim.left_to_right, R.anim.right_to_left);
+        if(returnType.equals(MENU_ACTIVITY))
+            finisActivity();
+        if(returnType.equals(MAIN_ACTIVITY))
+            finisActivity();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == RESULT_CHECKOUR) {
+            if (resultCode == RESULT_OK) {
+                this.shoppingCart = data.getParcelableExtra(EXTRA_SHOPPING_CART);
+                counterFab.setCount(shoppingCart.getAdditionalFoods().size() + shoppingCart.getMainFoods().size());
+
+                if(networkAvailable()) {
+                    try{
+                        updateMenu();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                } else
+                    Toast.makeText(this, "無網路連線", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private boolean networkAvailable() {
@@ -119,8 +155,13 @@ public class MenuActivity extends AppCompatActivity {
 
     public void updateMenu() {
         final OkHttpClient client = new OkHttpClient();
+        String url;
+        if(shoppingCart.getCurrentType() == ShoppingCartModel.MAIN)
+            url = getResources().getString(R.string.restaurant_urls) + shoppingCart.getMainRestaurantID();
+        else
+            url = getResources().getString(R.string.restaurant_urls) + shoppingCart.getAdditionalRestaurantID();
         final Request request = new Request.Builder()
-                .url(this.getResources().getString(R.string.restaurant_urls) + restaurantModel.getId())
+                .url(url)
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
@@ -166,13 +207,22 @@ public class MenuActivity extends AppCompatActivity {
 
     public void addFoodToCart(FoodModel food, long numOfFood) {
         shoppingCart.addFood(food, numOfFood);
+        counterFab.increase();
         Toast.makeText(this, "新增 " + food.getName() + " * " + numOfFood, Toast.LENGTH_SHORT).show();
     }
 
     public void startCheckoutActivity(){
         Intent checkoutActivity  = new Intent(this, CheckoutActivity.class);
         checkoutActivity.putExtra(EXTRA_SHOPPING_CART, shoppingCart);
-        startActivity(checkoutActivity);
+        startActivityForResult(checkoutActivity, RESULT_CHECKOUR);
         overridePendingTransition(R.anim.enter, R.anim.exit);
+    }
+
+    public void finisActivity() {
+        Intent data = new Intent();
+        data.putExtra(MenuActivity.EXTRA_SHOPPING_CART, shoppingCart);
+        setResult(RESULT_OK, data);
+        finish();
+        overridePendingTransition(R.anim.left_to_right, R.anim.right_to_left);
     }
 }

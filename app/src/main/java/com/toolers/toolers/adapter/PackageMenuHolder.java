@@ -1,6 +1,7 @@
 package com.toolers.toolers.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,8 +27,8 @@ public class PackageMenuHolder extends SingleMenuHolder {
     private LinearLayout optionList;
     private int requiredSelected[];
     private int additionalSelected[];
-    public PackageMenuHolder(View itemView, Context mContext) {
-        super(itemView, mContext);
+    public PackageMenuHolder(View itemView, Context mContext, MenuAdapter adapter) {
+        super(itemView, mContext, adapter);
         optionList = (LinearLayout) itemView.findViewById(R.id.option_list);
         optionList.setVisibility(View.VISIBLE);
     }
@@ -61,8 +62,10 @@ public class PackageMenuHolder extends SingleMenuHolder {
                 option.setId(id);
                 option.setOnCheckedChangeListener(listener);
                 group.addView(option);
+
             }
             optionList.addView(view);
+            requiredSelected[index] = group.getCheckedRadioButtonId();;
         }
         additionalSelected = new int[food.getAdditionalOptions().size()];
         for(int index = 0; index < food.getAdditionalOptions().size(); index++) {
@@ -92,6 +95,7 @@ public class PackageMenuHolder extends SingleMenuHolder {
             }
             group.clearCheck();
             optionList.addView(view);
+            additionalSelected[index] = group.getCheckedRadioButtonId();
         }
     }
 

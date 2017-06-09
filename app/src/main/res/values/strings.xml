@@ -9,6 +9,8 @@
 
     <string name="restaurant_list_urls">http://172.104.58.179/api/restaurants</string>
     <string name="restaurant_urls">http://172.104.58.179/api/restaurants/id/</string>
+    <string name="restaurant_addition">http://172.104.58.179/api/restaurants/addition</string>
+
 
     <string name="restaurant_activity_title">選擇餐點</string>
     <string name="add_to_cart">加到購物車</string>
@@ -19,5 +21,4 @@
     <string name="ok">確定</string>
     <string name="order">開始點餐</string>
     <string name="zero">0</string>
-    <string name="title_activity_checkout">結帳</string>
 </resources>

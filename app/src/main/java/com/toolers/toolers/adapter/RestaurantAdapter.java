@@ -67,7 +67,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
 
         @Override
         public void onClick(View view) {
-            mContext.onRestaruantClick(model);
+            mContext.onRestaurantClick(model);
         }
     }
 

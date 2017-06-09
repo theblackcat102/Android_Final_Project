@@ -2,6 +2,7 @@ package com.toolers.toolers.adapter;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -19,6 +20,7 @@ import java.util.Locale;
  */
 
 public class SingleMenuHolder extends MenuHolder implements View.OnClickListener {
+    private static final String TAG = "SingleMenuHolder";
     protected TextView price;
     protected TextView name;
     protected Button number;
@@ -26,8 +28,8 @@ public class SingleMenuHolder extends MenuHolder implements View.OnClickListener
 
     protected Context mContext;
 
-    public SingleMenuHolder(View itemView, Context mContext) {
-        super(itemView);
+    public SingleMenuHolder(View itemView, Context mContext, MenuAdapter adapter) {
+        super(itemView, adapter);
         this.mContext = mContext;
         name = (TextView) itemView.findViewById(R.id.name);
         price = (TextView) itemView.findViewById(R.id.price);
@@ -35,6 +37,7 @@ public class SingleMenuHolder extends MenuHolder implements View.OnClickListener
         addToCart = (Button) itemView.findViewById(R.id.add_to_cart);
         number.setOnClickListener(this);
         addToCart.setOnClickListener(this);
+        number.setText("1");
     }
     @Override
     public void onClick(View view) {
@@ -45,7 +48,7 @@ public class SingleMenuHolder extends MenuHolder implements View.OnClickListener
             Button cancel = (Button) dialog.findViewById(R.id.cancel);
             final NumberPicker numberPicker = (NumberPicker) dialog.findViewById(R.id.number_picker);
             numberPicker.setMaxValue(100);
-            numberPicker.setMinValue(0);
+            numberPicker.setMinValue(1);
             numberPicker.setWrapSelectorWheel(false);
             ok.setOnClickListener(new View.OnClickListener() {
                 @Override

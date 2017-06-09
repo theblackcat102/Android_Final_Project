@@ -28,6 +28,7 @@ import com.andremion.counterfab.CounterFab;
 import com.toolers.toolers.apiWrapper.AsyncGetRestaurant;
 import com.toolers.toolers.adapter.RestaurantAdapter;
 import com.toolers.toolers.model.RestaurantModel;
+import com.toolers.toolers.model.ShoppingCartModel;
 
 
 import org.json.simple.JSONArray;
@@ -197,9 +198,13 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    public void onRestaruantClick(RestaurantModel restaurantModel) {
+    public void onRestaurantClick(RestaurantModel restaurantModel) {
         Intent menuActivity = new Intent(this, MenuActivity.class);
-        menuActivity.putExtra(MenuActivity.EXTRA_RESTAURANT_MODEL, restaurantModel);
+        ShoppingCartModel shoppingCart = new ShoppingCartModel(ShoppingCartModel.MAIN).
+                setMainRestaurantID(restaurantModel.getId()).
+                setMainRestaurantName(restaurantModel.getName());
+        menuActivity.putExtra(MenuActivity.EXTRA_RETURN_TYPE, MenuActivity.MAIN_ACTIVITY);
+        menuActivity.putExtra(MenuActivity.EXTRA_SHOPPING_CART, shoppingCart);
         startActivity(menuActivity);
         overridePendingTransition(R.anim.enter, R.anim.exit);
     }

@@ -1,23 +1,45 @@
 package com.toolers.toolers;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
-import android.widget.ListView;
+import android.view.MenuItem;
 
 import com.toolers.toolers.adapter.CheckOutMainAdapter;
+import com.toolers.toolers.model.RestaurantModel;
 import com.toolers.toolers.model.ShoppingCartModel;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Headers;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class CheckoutActivity extends AppCompatActivity {
     private static final String TAG = "CheckoutActivity";
-    private ListView mainList;
+    private static final int REQUEST_CODE = 2;
+    private RecyclerView mainRecyclerView;
     private CheckOutMainAdapter mainAdapter;
-    private ListView additionalList;
     private ShoppingCartModel shoppingCart;
+    private List<RestaurantModel> additionalRestaurant;
+    private CoordinatorLayout coordinatorLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,19 +47,107 @@ public class CheckoutActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        shoppingCart = getIntent().getExtras().getParcelable(MenuActivity.EXTRA_SHOPPING_CART);
-        Log.d(TAG, "onCreate");
-        mainList = (ListView) findViewById(R.id.main_list);
-        mainAdapter = new CheckOutMainAdapter(this).
-                setData(shoppingCart.getMainFoods(), shoppingCart.getNumOfMainFood());
-        mainList.setAdapter(mainAdapter);
+        mainRecyclerView = (RecyclerView) findViewById(R.id.main_recycle_view);
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinateLayout);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mainAdapter = new CheckOutMainAdapter(this, coordinatorLayout);
+        mainRecyclerView.setAdapter(mainAdapter);
+        mainRecyclerView.setLayoutManager(mLayoutManager);
 
-        additionalList = (ListView) findViewById(R.id.additional_list);
+        shoppingCart = getIntent().getExtras().getParcelable(MenuActivity.EXTRA_SHOPPING_CART);
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("購物車 - " + shoppingCart.getMainRestaurantName());
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        getAdditionRestaurant();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                this.shoppingCart = data.getParcelableExtra(MenuActivity.EXTRA_SHOPPING_CART);
+                getAdditionRestaurant();
+            }
+        }
     }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        Intent data = new Intent();
+        data.putExtra(MenuActivity.EXTRA_SHOPPING_CART, shoppingCart.setType(ShoppingCartModel.MAIN));
+        setResult(RESULT_OK, data);
+        finish();
         overridePendingTransition(R.anim.left_to_right, R.anim.right_to_left);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void startAdditionalRestaurantMenu(RestaurantModel restaurant) {
+        Intent menuActivity = new Intent(this, MenuActivity.class);
+        shoppingCart.setType(ShoppingCartModel.ADDITIONAL).
+            setAdditionalRestaurantID(restaurant.getId()).
+            setAdditionalRestaurantName(restaurant.getName());
+        menuActivity.putExtra(MenuActivity.EXTRA_SHOPPING_CART, shoppingCart);
+        menuActivity.putExtra(MenuActivity.EXTRA_RETURN_TYPE, MenuActivity.MENU_ACTIVITY);
+        startActivityForResult(menuActivity, REQUEST_CODE);
+        overridePendingTransition(R.anim.enter, R.anim.exit);
+    }
+
+    public void getAdditionRestaurant() {
+        final OkHttpClient client = new OkHttpClient();
+        final Request request = new Request.Builder()
+                .url(this.getResources().getString(R.string.restaurant_addition))
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@Nullable Call call, @Nullable IOException e) {
+                if (e != null)
+                    e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@Nullable Call call, @Nullable Response response) throws IOException {
+                try (ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful())
+                        throw new IOException("Unexpected code " + response);
+
+                    Headers responseHeaders = response.headers();
+                    for (int i = 0, size = responseHeaders.size(); i < size; i++) {
+                        Log.d(TAG, responseHeaders.name(i) + ": " + responseHeaders.value(i));
+                    }
+                    JSONArray jsonArray;
+                    try {
+                        JSONParser parser = new JSONParser();
+                        jsonArray = (JSONArray) parser.parse(responseBody.string());
+                    } catch (Exception e) {
+                        e.printStackTrace(); // handle json parsing exception
+                        return;
+                    }
+                    additionalRestaurant = new ArrayList<>();
+                    try {
+                        for (int i = 0; i < jsonArray.size(); i++) {
+                            RestaurantModel restaurant = new RestaurantModel((JSONObject) jsonArray.get(i));
+                            if(!restaurant.getId().equals(shoppingCart.getMainRestaurantID()))
+                                additionalRestaurant.add(restaurant);
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                    mainAdapter.setData(shoppingCart, additionalRestaurant);
+                }
+            }
+        });
     }
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Button
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/additional_restaurant"
+    android:textSize="@dimen/restaurant_text_size"
+    android:theme="@style/AppTheme.Button"
+    android:gravity="center"
+    android:minHeight="0dp"
+    android:minWidth="0dp"
+    android:drawableEnd="@mipmap/ic_chevron_right_white_24dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"/>

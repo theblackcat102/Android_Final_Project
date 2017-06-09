@@ -46,13 +46,14 @@ public class MenuAdapter extends BaseAdapter {
             LayoutInflater inflater = LayoutInflater.from(context);
             convertView = inflater.inflate(R.layout.menu_list, parent, false);
             if(food.getType().equals(FoodModel.SINGLE))
-                holder = new SingleMenuHolder(convertView, mContext);
+                holder = new SingleMenuHolder(convertView, mContext, this);
             else
-                holder = new PackageMenuHolder(convertView, mContext);
+                holder = new PackageMenuHolder(convertView, mContext, this);
             convertView.setTag(holder);
         }
 
         holder.setFood(food);
+        holder.setPosition(position);
         holder.setExpanded(isExpanded.contains(position));
 
         return convertView;

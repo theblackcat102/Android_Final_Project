@@ -1,5 +1,7 @@
 package com.toolers.toolers.model;
 
+import android.util.Log;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -15,6 +17,7 @@ import java.util.List;
  */
 
 public class FoodModel extends FoodItemModel {
+    private static final String TAG = "FoodModel";
     public static final String SINGLE = "single";
     public static final String PACKAGE = "package";
     private String type;
@@ -127,9 +130,9 @@ public class FoodModel extends FoodItemModel {
 
     public FoodModel buildForOrder(int requiredSelection[], int additionalSelection[]) {
         FoodModel foodModel = new FoodModel();
-        foodModel.setType(type).
+        foodModel.setType(getType()).
                 setReqiredOptionName(rName).
-                setAdditionalOptionName(aName);
+                setAdditionalOptionName(aName).
                 setName(getName()).
                 setOption(getOption()).
                 setPrice(getPrice());
@@ -142,6 +145,6 @@ public class FoodModel extends FoodItemModel {
             else
                 foodModel.getAdditionalOptions().add(Collections.<FoodItemModel>emptyList());
 
-        return this;
+        return foodModel;
     }
 }

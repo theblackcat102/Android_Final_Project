@@ -27,7 +27,6 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".CheckoutActivity"
-            android:label="@string/title_activity_checkout"
             android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 

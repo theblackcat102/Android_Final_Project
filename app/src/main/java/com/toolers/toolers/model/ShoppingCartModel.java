@@ -116,8 +116,9 @@ public class ShoppingCartModel implements Parcelable {
         return type;
     }
 
-    public void setType(int type) {
+    public ShoppingCartModel setType(int type) {
         this.type = type;
+        return this;
     }
 
     public static final Parcelable.Creator<ShoppingCartModel> CREATOR = new Parcelable.Creator<ShoppingCartModel>() {
