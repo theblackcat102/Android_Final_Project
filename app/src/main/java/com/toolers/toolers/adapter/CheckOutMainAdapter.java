@@ -251,6 +251,7 @@ public class CheckOutMainAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     break;
                 }
                 case ADDITION_FOOD: {
+                    Log.d(TAG, "" + getAdapterPosition() + " " + shoppingCart.getMainFoods().size() + " " + shoppingCart.getAdditionalFoods().size());
                     final int position = getAdapterPosition() - shoppingCart.getMainFoods().size() - 2;
                     final FoodModel food = shoppingCart.getAdditionalFoods().get(position);
                     final long numOfFood = shoppingCart.getNumOfAdditionalFood().get(position);

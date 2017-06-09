@@ -20,19 +20,29 @@
 
     </android.support.design.widget.AppBarLayout>
 
-
-    <ListView
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:id="@+id/restaurant_list_view"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/orange"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="8dp"
-        android:padding="8dp"
-        android:scrollbars="none"/>
+        android:background="@drawable/orange">
+        <ListView
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:id="@+id/restaurant_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="8dp"
+            android:padding="8dp"
+            android:scrollbars="none"/>
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"/>
+
+    </RelativeLayout>
 
     <com.andremion.counterfab.CounterFab
         android:id="@+id/fab_menu"

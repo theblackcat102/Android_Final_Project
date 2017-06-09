@@ -10,7 +10,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.toolers.toolers.adapter.CheckOutMainAdapter;
@@ -41,14 +43,18 @@ import okhttp3.ResponseBody;
 public class CheckoutActivity extends AppCompatActivity {
     private static final String TAG = "CheckoutActivity";
     private static final int REQUEST_CODE = 2;
+    // UI
+    private View contentLayout;
     private RecyclerView mainRecyclerView;
     private CheckOutMainAdapter mainAdapter;
-    private ShoppingCartModel shoppingCart;
-    private List<RestaurantModel> additionalRestaurant;
     private CoordinatorLayout coordinatorLayout;
     private TextView originalCost;
     private TextView totalCost;
     private Button checkout;
+    private ProgressBar progressBar;
+    // Data Model
+    private ShoppingCartModel shoppingCart;
+    private List<RestaurantModel> additionalRestaurant;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,7 +67,10 @@ public class CheckoutActivity extends AppCompatActivity {
         originalCost = (TextView) findViewById(R.id.original_cost);
         totalCost = (TextView) findViewById(R.id.total_cost);
         checkout = (Button) findViewById(R.id.checkout);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        contentLayout = findViewById(R.id.content_checkout);
+        setProcessing(true);
+        RecyclerView.LayoutManager mLayoutManager = new WrapContentLinearLayoutManager(this);
         mainAdapter = new CheckOutMainAdapter(this, coordinatorLayout);
         mainRecyclerView.setAdapter(mainAdapter);
         mainRecyclerView.setLayoutManager(mLayoutManager);
@@ -115,6 +124,16 @@ public class CheckoutActivity extends AppCompatActivity {
         menuActivity.putExtra(MenuActivity.EXTRA_RETURN_TYPE, MenuActivity.MENU_ACTIVITY);
         startActivityForResult(menuActivity, REQUEST_CODE);
         overridePendingTransition(R.anim.enter, R.anim.exit);
+    }
+
+    private void setProcessing(boolean isProcessing) {
+        if(isProcessing) {
+            progressBar.setVisibility(View.VISIBLE);
+            contentLayout.setVisibility(View.GONE);
+        } else {
+            progressBar.setVisibility(View.GONE);
+            contentLayout.setVisibility(View.VISIBLE);
+        }
     }
 
     public void getAdditionRestaurant() {
@@ -207,10 +226,26 @@ public class CheckoutActivity extends AppCompatActivity {
                         public void run() {
                             originalCost.setText(String.format(Locale.TAIWAN, "%d", originalCostNum));
                             totalCost.setText(String.format(Locale.TAIWAN, "%d", totalCostNum));
+                            setProcessing(false);
                         }
                     });
                 }
             }
         });
+    }
+
+    private class WrapContentLinearLayoutManager extends LinearLayoutManager {
+        WrapContentLinearLayoutManager(AppCompatActivity activity) {
+            super(activity);
+        }
+
+        /**
+         * RecyclerView.LinearLayoutManager issue
+         * reference: https://stackoverflow.com/questions/30220771/recyclerview-inconsistency-detected-invalid-item-position
+         */
+        @Override
+        public boolean supportsPredictiveItemAnimations() {
+            return false;
+        }
     }
 }

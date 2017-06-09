@@ -22,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.andremion.counterfab.CounterFab;
@@ -50,12 +51,10 @@ import okhttp3.ResponseBody;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private String TAG = "MainActivity";
-    private ProgressDialog progressDialog;
+    private ProgressBar progressBar;
     private RecyclerView mRecyclerView;
     private RestaurantAdapter restaurantAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
     private ArrayList<RestaurantModel> restaurantList;
-    private int selectedCount = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,8 +64,9 @@ public class MainActivity extends AppCompatActivity
         if(getSupportActionBar() != null)
             getSupportActionBar().setTitle(getString(R.string.main_activity_title));
         restaurantList = new ArrayList<>();
-        mLayoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mLayoutManager);
         restaurantAdapter = new RestaurantAdapter(restaurantList, this);
@@ -79,14 +79,7 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        if(networkAvailable()) {
-            try{
-                updateUI();
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        } else
-            Toast.makeText(this, "無網路連線", Toast.LENGTH_SHORT).show();
+        updateUI();
     }
 
     @Override
@@ -153,6 +146,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void updateUI(){
+        setProcessing(true);
+        if(!networkAvailable()) {
+            Toast.makeText(this, "無網路連線", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         final OkHttpClient client = new OkHttpClient();
         final Request request = new Request.Builder()
                 .url(this.getResources().getString(R.string.restaurant_list_urls))
@@ -191,11 +190,22 @@ public class MainActivity extends AppCompatActivity
                         @Override
                         public void run() {
                             restaurantAdapter.setNewData(restaurantList);
+                            setProcessing(false);
                         }
                     });
                 }
             }
         });
+    }
+
+    private void setProcessing(boolean isProcessing) {
+        if(isProcessing) {
+            progressBar.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.GONE);
+        } else {
+            progressBar.setVisibility(View.GONE);
+            mRecyclerView.setVisibility(View.VISIBLE);
+        }
     }
 
     public void onRestaurantClick(RestaurantModel restaurantModel) {

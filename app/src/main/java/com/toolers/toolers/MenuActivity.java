@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.andremion.counterfab.CounterFab;
@@ -56,6 +57,7 @@ public class MenuActivity extends AppCompatActivity {
     private MenuAdapter menuAdapter;
     private ArrayList<FoodModel> foods;
     private CounterFab counterFab;
+    private ProgressBar progressBar;
 
     // Data Model
     private ShoppingCartModel shoppingCart;
@@ -88,6 +90,7 @@ public class MenuActivity extends AppCompatActivity {
                     startCheckoutActivity();
             }
         });
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mListView = (ListView) findViewById(R.id.restaurant_list_view);
         menuAdapter = new MenuAdapter(this);
         mListView.setAdapter(menuAdapter);
@@ -98,14 +101,7 @@ public class MenuActivity extends AppCompatActivity {
                 //ViewAnimationUtils.toggle(view, position, menuAdapter);
             }
         });
-        if(networkAvailable()) {
-            try{
-                updateMenu();
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        } else
-            Toast.makeText(this, "無網路連線", Toast.LENGTH_SHORT).show();
+        updateMenu();
     }
 
     @Override
@@ -154,6 +150,12 @@ public class MenuActivity extends AppCompatActivity {
     }
 
     public void updateMenu() {
+        setProcessing(true);
+        if(!networkAvailable()) {
+            Toast.makeText(this, "無網路連線", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         final OkHttpClient client = new OkHttpClient();
         String url;
         if(shoppingCart.getCurrentType() == ShoppingCartModel.MAIN)
@@ -198,11 +200,22 @@ public class MenuActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             menuAdapter.setNewData(foods);
+                            setProcessing(false);
                         }
                     });
                 }
             }
         });
+    }
+
+    private void setProcessing(boolean isProcessing) {
+        if(isProcessing) {
+            progressBar.setVisibility(View.VISIBLE);
+            mListView.setVisibility(View.GONE);
+        } else {
+            progressBar.setVisibility(View.GONE);
+            mListView.setVisibility(View.VISIBLE);
+        }
     }
 
     public void addFoodToCart(FoodModel food, long numOfFood) {
