@@ -147,6 +147,7 @@ public class PaymentActivity extends AppCompatActivity {
                     postOrder(order);
                 }
             }).start();
+            return;
         } else if (!card.validateNumber()) {
             Log.d("Stripe","The card number that you entered is invalid");
         } else if (!card.validateExpiryDate()) {
@@ -156,6 +157,7 @@ public class PaymentActivity extends AppCompatActivity {
         } else {
             Log.d("Stripe","The card details that you entered are invalid");
         }
+        Toast.makeText(PaymentActivity.this, "無效的信用卡", Toast.LENGTH_SHORT).show();
         buyBtn.setEnabled(true);
     }
 
