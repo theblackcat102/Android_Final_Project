@@ -16,6 +16,7 @@ import java.util.Locale;
 public class OrderModel {
     public static final String STATUS_OPEN = "open";
     public static final String STATUS_CLOSE = "close";
+    private static final SimpleDateFormat DATE_FORMAT_MILLISECOND = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.TAIWAN);
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.TAIWAN);
     private String id;
     private Date time;
@@ -54,7 +55,7 @@ public class OrderModel {
 
     public OrderModel(JSONObject json) throws ParseException{
         id = (String) json.get("id");
-        time = DATE_FORMAT.parse((String)json.get("time"));
+        time = DATE_FORMAT_MILLISECOND.parse((String)json.get("time"));
         status = (String) json.get("status");
         dormName = (String) json.get("dorm_name");
         dormNumber = (String) json.get("dorm_number");
@@ -176,7 +177,7 @@ public class OrderModel {
         else
             order.setOrders(new OrderItemModel[]{OrderItemModel.buildMain(shoppingCart),
                     OrderItemModel.buildAdditional(shoppingCart)});
-        return null;
+        return order;
     }
 
     public static OrderModel buildForCost(ShoppingCartModel shoppingCart) {

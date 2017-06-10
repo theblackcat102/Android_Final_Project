@@ -49,6 +49,7 @@ public class SingleMenuHolder extends MenuHolder implements View.OnClickListener
             final NumberPicker numberPicker = (NumberPicker) dialog.findViewById(R.id.number_picker);
             numberPicker.setMaxValue(100);
             numberPicker.setMinValue(1);
+            numberPicker.setValue(Integer.parseInt(number.getText().toString()));
             numberPicker.setWrapSelectorWheel(false);
             ok.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -1,9 +1,14 @@
 package com.toolers.toolers;
 
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,16 +16,19 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.stripe.android.model.Card;
-import com.stripe.android.view.CardInputWidget;
 import com.toolers.toolers.adapter.CheckOutMainAdapter;
 import com.toolers.toolers.model.OrderModel;
 import com.toolers.toolers.model.RestaurantModel;
 import com.toolers.toolers.model.ShoppingCartModel;
+import com.toolers.toolers.model.UserModel;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -47,6 +55,7 @@ import static com.toolers.toolers.MenuActivity.EXTRA_SHOPPING_CART;
 
 public class CheckoutActivity extends AppCompatActivity {
     private static final String TAG = "CheckoutActivity";
+    public static final String EXTRA_USER = "EXTRA_USER";
     private static final int REQUEST_CODE = 2;
     // UI
     private View contentLayout;
@@ -57,11 +66,13 @@ public class CheckoutActivity extends AppCompatActivity {
     private TextView totalCost;
     private Button checkout;
     private ProgressBar progressBar;
+    private ProgressDialog progressDialog;
+    private Dialog userDialog;
     // Data Model
     private ShoppingCartModel shoppingCart;
     private List<RestaurantModel> additionalRestaurant;
-    private Card card;
-    private CardInputWidget mCardInputWidget;
+    private SharedPreferences sharedPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +80,8 @@ public class CheckoutActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        progressDialog = new ProgressDialog(this);
+        sharedPreferences = getSharedPreferences("user_data" , MODE_PRIVATE);
         mainRecyclerView = (RecyclerView) findViewById(R.id.main_recycle_view);
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinateLayout);
         originalCost = (TextView) findViewById(R.id.original_cost);
@@ -92,9 +105,19 @@ public class CheckoutActivity extends AppCompatActivity {
         checkout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent checkoutActivity  = new Intent(getApplicationContext(), PaymentActivity.class);
-                checkoutActivity.putExtra(EXTRA_SHOPPING_CART, shoppingCart);
-                startActivity(checkoutActivity);
+                if(totalCost.getText().toString().equals("??")) {
+                    final AlertDialog.Builder MyAlertDialog = new AlertDialog.Builder(CheckoutActivity.this);
+                    MyAlertDialog.setMessage("數量過多，無法下單，請重新調整");
+                    MyAlertDialog.setNeutralButton("確定", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    MyAlertDialog.show();
+                } else {
+                    buildUserDialog();
+                    userDialog.show();
+                }
             }
         });
     }
@@ -150,6 +173,62 @@ public class CheckoutActivity extends AppCompatActivity {
         menuActivity.putExtra(MenuActivity.EXTRA_RETURN_TYPE, MenuActivity.MENU_ACTIVITY);
         startActivityForResult(menuActivity, REQUEST_CODE);
         overridePendingTransition(R.anim.enter, R.anim.exit);
+    }
+
+    private void buildUserDialog() {
+        userDialog = new Dialog(CheckoutActivity.this);
+        userDialog.setContentView(R.layout.user_dialog);
+        Button finish = (Button) userDialog.findViewById(R.id.finish);
+        final EditText userName = (EditText) userDialog.findViewById(R.id.user_name);
+        final EditText userPhone = (EditText) userDialog.findViewById(R.id.user_phone);
+        final EditText dormName = (EditText) userDialog.findViewById(R.id.dorm_name);
+        final EditText dormNum = (EditText) userDialog.findViewById(R.id.dorm_num);
+        final Spinner method = (Spinner) userDialog.findViewById(R.id.method_spinner);
+        userName.setText(sharedPreferences.getString("USER_NAME", ""));
+        userPhone.setText(sharedPreferences.getString("USER_PHONE", ""));
+        dormName.setText(sharedPreferences.getString("DORM_NAME", ""));
+        dormNum.setText(sharedPreferences.getString("DORM_NUM", ""));
+        finish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(userName.getText().length() == 0) {
+                    Toast.makeText(CheckoutActivity.this, "請填寫收貨人姓名", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(userPhone.getText().length() == 0) {
+                    Toast.makeText(CheckoutActivity.this, "請填寫收貨人電話", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(dormName.getText().length() == 0) {
+                    Toast.makeText(CheckoutActivity.this, "請填寫收貨人宿舍名稱", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(dormNum.getText().length() == 0) {
+                    Toast.makeText(CheckoutActivity.this, "請填寫收貨人宿舍房號", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                UserModel user = new UserModel().
+                        setName(userName.getText().toString()).
+                        setPhone(userPhone.getText().toString()).
+                        setDormName(dormName.getText().toString()).
+                        setDormNumber(dormNum.getText().toString());
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("USER_NAME", user.getName());
+                editor.putString("USER_PHONE", user.getPhone());
+                editor.putString("DORM_NAME", user.getDormName());
+                editor.putString("DORM_NUM", user.getDormNumber());
+                editor.apply();
+
+                if(method.getSelectedItem().equals("刷卡")) {
+                    Intent paymentActivity = new Intent(getApplicationContext(), PaymentActivity.class);
+                    paymentActivity.putExtra(EXTRA_SHOPPING_CART, shoppingCart);
+                    paymentActivity.putExtra(EXTRA_USER, user);
+                    startActivity(paymentActivity);
+                } else {
+                    postOrder(user);
+                }
+            }
+        });
     }
 
     private void setProcessing(boolean isProcessing) {
@@ -230,8 +309,18 @@ public class CheckoutActivity extends AppCompatActivity {
             @Override
             public void onResponse(@Nullable Call call, @Nullable Response response) throws IOException {
                 try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful())
-                        throw new IOException("Unexpected code " + response);
+                    if (!response.isSuccessful()) {
+                        Log.d(TAG, "Unexpected code " + response);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                originalCost.setText("?");
+                                totalCost.setText("?");
+                                setProcessing(false);
+                            }
+                        });
+                        return;
+                    }
 
                     Headers responseHeaders = response.headers();
                     for (int i = 0, size = responseHeaders.size(); i < size; i++) {
@@ -252,10 +341,86 @@ public class CheckoutActivity extends AppCompatActivity {
                         public void run() {
                             originalCost.setText(String.format(Locale.TAIWAN, "%d", originalCostNum));
                             totalCost.setText(String.format(Locale.TAIWAN, "%d", totalCostNum));
+                            if (shoppingCart.getMainFoods().size() == 0)
+                                checkout.setEnabled(false);
+                            else
+                                checkout.setEnabled(true);
                             setProcessing(false);
                         }
                     });
                 }
+            }
+        });
+    }
+
+    private void postOrder(UserModel user) {
+        progressDialog.setTitle("訂單處理中");
+        progressDialog.setMessage("請稍後");
+        progressDialog.show();
+        final long beginTime = System.currentTimeMillis();
+        OrderModel order = OrderModel.build(shoppingCart, user);
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(JSON, order.toJSON().toJSONString());
+        String url = getString(R.string.post_orders);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@Nullable Call call, @Nullable IOException e) {
+                if (e != null)
+                    e.printStackTrace();
+                postFailure();
+            }
+
+            @Override
+            public void onResponse(@Nullable Call call, @Nullable Response response) throws IOException {
+                ResponseBody responseBody = response.body();
+                if (!response.isSuccessful()) {
+                    postFailure();
+                    return;
+                }
+
+                OrderModel order;
+                try {
+                    JSONParser parser = new JSONParser();
+                    JSONObject json = (JSONObject) parser.parse(responseBody.string());
+                    order = new OrderModel(json);
+                    Log.d(TAG, order.toJSON().toJSONString());
+                } catch (Exception e) {
+                    e.printStackTrace(); // handle json parsing exception
+                }
+                postSuccess();
+            }
+
+            private void postFailure() {
+                while(System.currentTimeMillis() - beginTime < 1000);
+                Log.d(TAG, "postOrder() fail");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(CheckoutActivity.this, "下單失敗，請檢查網路連線", Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
+                    }
+                });
+            }
+
+            private void postSuccess() {
+                while(System.currentTimeMillis() - beginTime < 1000);
+                Log.d(TAG, "postOrder() success");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.dismiss();
+                        userDialog.dismiss();
+                        Toast.makeText(CheckoutActivity.this, "下單成功", Toast.LENGTH_LONG).show();
+                        Intent mainActivity = new Intent(CheckoutActivity.this, MainActivity.class);
+                        mainActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(mainActivity);
+                    }
+                });
             }
         });
     }

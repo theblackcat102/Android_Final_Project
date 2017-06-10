@@ -21,4 +21,9 @@
         <item name="colorButtonNormal">@color/colorPrimary</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
+
+    <style name="AppTheme.Button.Borderless" parent="Widget.AppCompat.Button.Borderless.Colored">
+        <item name="colorButtonNormal">@android:color/transparent</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
 </resources>

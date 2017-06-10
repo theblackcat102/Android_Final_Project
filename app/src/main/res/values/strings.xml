@@ -11,6 +11,7 @@
     <string name="restaurant_urls">http://172.104.58.179/api/restaurants/id/</string>
     <string name="restaurant_addition">http://172.104.58.179/api/restaurants/addition</string>
     <string name="orders_cost">http://172.104.58.179/api/orders/cost</string>
+    <string name="post_orders">http://172.104.58.179/api/orders</string>
 
 
     <string name="restaurant_activity_title">選擇餐點</string>
@@ -26,6 +27,20 @@
     <string name="total_cost">總計:</string>
     <string name="checkout">結帳</string>
     <string name="title_activity_checkout">結帳</string>
+    <string name="choose_method">選擇結帳方法</string>
+    <string name="cash_on_delivery">貨到付款</string>
+    <string name="card">刷卡</string>
+    <string name="user_phone">電話</string>
+    <string name="user_name">領取人姓名</string>
+    <string name="dorm_name">宿舍名稱</string>
+    <string name="dorm_num">房號</string>
+    <string name="finish">完成</string>
+    <string name="user_data">領取人資料</string>
+
+    <string-array name="payment_method">
+        <item>貨到付款</item>
+        <item>刷卡</item>
+    </string-array>
 
     <string name="purchase">購買</string>
     <string name="payment">開始付款</string>

@@ -7,9 +7,9 @@
     android:layout_height="match_parent"
     tools:context="com.toolers.toolers.PaymentActivity">
     <LinearLayout
-    android:layout_width="match_parent"
-    android:orientation="vertical"
-    android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -25,6 +25,7 @@
                     android:textSize="@dimen/restaurant_text_size_large"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
                     android:text="@string/information"/>
+
                 <EditText
                     android:id="@+id/name"
                     android:layout_width="match_parent"
@@ -34,24 +35,6 @@
                     android:ems="10"
                     android:inputType="text" />
 
-                <EditText
-                    android:id="@+id/address"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/address"
-                    android:textSize="@dimen/restaurant_text_size"
-                    android:ems="10"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:inputType="textPostalAddress" />
-                <EditText
-                    android:id="@+id/room_number"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/room_number"
-                    android:textSize="@dimen/restaurant_text_size"
-                    android:ems="10"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:inputType="number" />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -59,6 +42,7 @@
                     android:textSize="@dimen/restaurant_text_size_large"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
                     android:ems="10"/>
+
                 <com.braintreepayments.cardform.view.SupportedCardTypesView
                     android:id="@+id/supported_card_types"
                     android:layout_width="match_parent"
@@ -71,11 +55,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/bt_margin"/>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:gravity="center_horizontal">
+
                     <Button
                         android:id="@+id/button"
                         android:gravity="center"
