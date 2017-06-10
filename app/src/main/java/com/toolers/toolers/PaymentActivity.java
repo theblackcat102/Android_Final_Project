@@ -101,6 +101,7 @@ public class PaymentActivity extends AppCompatActivity {
     private void transaction() {
         buyBtn.setEnabled(false);
         card = getCard();
+
         boolean validation = card.validateCard();
         final List<FoodModel> foods = shoppingCart.getMainFoods();
         final List<FoodModel> sideFood = shoppingCart.getAdditionalFoods();
@@ -111,8 +112,9 @@ public class PaymentActivity extends AppCompatActivity {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    int i = 0;
                     for(final FoodModel side:sideFood){
-                        for(int j = 0; j < sideAmount.size(); j++){
+                        for(int j = 0; j < sideAmount.get(i); j++){
                             new Stripe(getApplicationContext(), PUBLISHABLE_KEY).createToken(
                                     card,
                                     new TokenCallback() {
@@ -126,9 +128,11 @@ public class PaymentActivity extends AppCompatActivity {
                                         }
                                     });
                         }
+                        i++;
                     }
+                    i=0;
                     for(final FoodModel food:foods) {
-                        for (int j = 0; j < amount.size(); j++) {
+                        for (int j = 0; j < amount.get(i); j++) {
                             new Stripe(getApplicationContext(), PUBLISHABLE_KEY).createToken(
                                     card,
                                     new TokenCallback() {
@@ -142,6 +146,7 @@ public class PaymentActivity extends AppCompatActivity {
                                         }
                                     });
                         }
+                        i++;
                     }
                     OrderModel order = OrderModel.build(shoppingCart, user);
                     postOrder(order);
