@@ -9,6 +9,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.braintreepayments.cardform.utils.CardType;
+import com.braintreepayments.cardform.view.CardForm;
+import com.braintreepayments.cardform.view.SupportedCardTypesView;
 import com.parse.FunctionCallback;
 import com.parse.Parse;
 import com.parse.ParseCloud;
@@ -18,7 +21,9 @@ import com.stripe.android.TokenCallback;
 import com.stripe.android.model.Card;
 import com.stripe.android.model.Token;
 import com.toolers.toolers.model.FoodModel;
+import com.toolers.toolers.model.OrderModel;
 import com.toolers.toolers.model.ShoppingCartModel;
+import com.toolers.toolers.model.UserModel;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +38,12 @@ public class PaymentActivity extends AppCompatActivity {
     private Card card;
     private ProgressDialog progress;
     private ShoppingCartModel shoppingCart;
+    private OrderModel orderModel;
     private Button buyBtn;
+    private static final CardType[] SUPPORTED_CARD_TYPES = { CardType.VISA, CardType.MASTERCARD, CardType.UNIONPAY };
+    private EditText addressText,nameText,roomNumber;
+    private SupportedCardTypesView mSupportedCardTypesView;
+    protected CardForm mCardForm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,12 +58,29 @@ public class PaymentActivity extends AppCompatActivity {
         shoppingCart = getIntent().getExtras().getParcelable(EXTRA_SHOPPING_CART);
         progress = new ProgressDialog(this);
         buyBtn = (Button) findViewById(R.id.button);
+        nameText = (EditText)findViewById(R.id.name);
+        addressText = (EditText)findViewById(R.id.address);
+        roomNumber = (EditText)findViewById(R.id.room_number);
         buyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 transaction();
             }
         });
+        orderModel = new OrderModel();
+
+        mSupportedCardTypesView = (SupportedCardTypesView) findViewById(R.id.supported_card_types);
+        mSupportedCardTypesView.setSupportedCardTypes(SUPPORTED_CARD_TYPES);
+
+        mCardForm = (CardForm) findViewById(R.id.card_form);
+        mCardForm.cardRequired(true)
+                .expirationRequired(true)
+                .cvvRequired(true)
+                .postalCodeRequired(true)
+                .mobileNumberRequired(true)
+                .mobileNumberExplanation("讓食物送到時能找到你～")
+                .actionLabel(getString(R.string.purchase))
+                .setup(this);
     }
 
     private void transaction(){
@@ -64,6 +91,7 @@ public class PaymentActivity extends AppCompatActivity {
         List<Long> amount = shoppingCart.getNumOfMainFood();
         finishProgress();
         if(validation){
+            orderModel.build(shoppingCart,getUserModel()); // TODO : 建了然後要怎麼發送？
             for(final FoodModel food:foods) {
                 for (int j = 0; j < amount.size(); j++) {
                     new Stripe(this.getApplicationContext(), PUBLISHABLE_KEY).createToken(
@@ -95,12 +123,13 @@ public class PaymentActivity extends AppCompatActivity {
         HashMap<String, Object> params = new HashMap<>();
                 params.put("itemName", food.getName());
                 params.put("cardToken", cardToken.getId());
-                params.put("name","Dominic Wong");
-                params.put("email","dominwong4@gmail.com");
-                params.put("address","HIHI");
-                params.put("zip","99999");
-                params.put("city_state","CA");
+                params.put("name",nameText.getText().toString());
+                params.put("email","zhirui09400@gmail.com");
+                params.put("address","NCTU");
+                params.put("zip","300");
+                params.put("city_state","Hsinchu");
                 startProgress("Purchasing Item");
+
                 ParseCloud.callFunctionInBackground("purchaseItem", params, new FunctionCallback<Object>() {
                     public void done(Object response, ParseException e) {
                         finishProgress();
@@ -124,7 +153,14 @@ public class PaymentActivity extends AppCompatActivity {
     private void finishProgress(){
         progress.dismiss();
     }
-
+    private UserModel getUserModel(){
+        UserModel model = new UserModel();
+        model.setDormName(addressText.getText().toString());
+        model.setDormNumber(roomNumber.getText().toString());
+        model.setName(nameText.getText().toString());
+        model.setPhone(mCardForm.getMobileNumber());
+        return model;
+    }
 
     private Card getCard(){
         EditText creditNumber = (EditText) findViewById(R.id.credit_number);
@@ -134,7 +170,8 @@ public class PaymentActivity extends AppCompatActivity {
         EditText address = (EditText)findViewById(R.id.address);
         EditText name = (EditText)findViewById(R.id.name);
         EditText phoneNumber = (EditText)findViewById(R.id.number);
-
-        return new Card(creditNumber.getText().toString(),Integer.parseInt(expMonth.getText().toString()),Integer.parseInt(year.getText().toString()),cvvNumber.getText().toString());
+        Log.d("PaymentActivity","credit card info "+Integer.parseInt(mCardForm.getExpirationMonth())+Integer.parseInt(mCardForm.getExpirationYear()));
+        //return new Card(mCardForm.getCardNumber(),Integer.parseInt(mCardForm.getExpirationMonth()),Integer.parseInt(mCardForm.getExpirationYear()),mCardForm.getCvv());
+         return new Card(creditNumber.getText().toString(),Integer.parseInt(expMonth.getText().toString()),Integer.parseInt(year.getText().toString()),cvvNumber.getText().toString());
     }
 }

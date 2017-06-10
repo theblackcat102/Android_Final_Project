@@ -33,7 +33,7 @@ public class OrderModel {
     private OrderItemModel orders[];
 
 
-    private OrderModel() {}
+    public OrderModel() {}
 
     public OrderModel(String json) throws ParseException, org.json.simple.parser.ParseException {
         this((JSONObject)(new JSONParser().parse(json)));

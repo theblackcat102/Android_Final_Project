@@ -20,4 +20,13 @@
     <string name="order">開始點餐</string>
     <string name="zero">0</string>
     <string name="title_activity_checkout">結帳</string>
+
+    <string name="purchase">購買</string>
+    <string name="payment">開始付款</string>
+    <string name="address">宿舍名稱</string>
+    <string name="name">名稱</string>
+    <string name="information">填寫個人資料</string>
+    <string name="credit_card_info">輸入信用卡資料</string>
+    <string name="pay_now">立刻付款</string>
+    <string name="room_number">宿舍房號</string>
 </resources>

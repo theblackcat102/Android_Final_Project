@@ -54,7 +54,7 @@ public class MenuActivity extends AppCompatActivity {
     private ArrayList<FoodModel> foods;
     private FloatingActionButton selectButton;
     private CounterFab counterFab;
-
+    private int total;
     // Data Model
     private ShoppingCartModel shoppingCart;
     @Override
@@ -76,7 +76,9 @@ public class MenuActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(title);
         }
         selectButton = (FloatingActionButton) findViewById(R.id.fab_menu);
+        total = 0;
         counterFab = (CounterFab)findViewById(R.id.fab_menu); // setCount(10);
+        counterFab.setCount(total);
         selectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -166,6 +168,8 @@ public class MenuActivity extends AppCompatActivity {
 
     public void addFoodToCart(FoodModel food, long numOfFood) {
         shoppingCart.addFood(food, numOfFood);
+        total += numOfFood;
+        counterFab.setCount(total);
         Toast.makeText(this, "新增 " + food.getName() + " * " + numOfFood, Toast.LENGTH_SHORT).show();
     }
 

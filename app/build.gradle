@@ -25,7 +25,8 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-
+    compile 'com.braintreepayments:card-form:3.0.5'
+    compile 'io.card:android-sdk:[5.5.0,6.0.0)'
     compile 'com.stripe:stripe-android:4.0.3'
     compile 'com.parse:parse-android:1.13.0'
     compile 'com.googlecode.json-simple:json-simple:1.1'
