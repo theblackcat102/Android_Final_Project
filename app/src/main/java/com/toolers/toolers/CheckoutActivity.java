@@ -89,7 +89,6 @@ public class CheckoutActivity extends AppCompatActivity {
         }
         getAdditionRestaurant();
         updateOrderCost();
-        Button paymentBtn = (Button)findViewById(R.id.payment_btn);
         checkout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
