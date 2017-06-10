@@ -3,6 +3,7 @@ package com.toolers.toolers;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -80,7 +81,7 @@ public class PaymentActivity extends AppCompatActivity {
         buyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                transaction();
+                transaction(v);
             }
         });
 
@@ -96,18 +97,22 @@ public class PaymentActivity extends AppCompatActivity {
                 .mobileNumberExplanation("讓食物送到時能找到你～")
                 .actionLabel(getString(R.string.purchase))
                 .setup(this);
+        mCardForm.setCardNumberError("信用卡卡號錯誤");
+        mCardForm.setExpirationError("信用卡有效日期錯誤");
+        mCardForm.setCvvError("信用卡Cvv代碼錯誤");
     }
 
-    private void transaction() {
+    private void transaction(View v) {
         buyBtn.setEnabled(false);
         card = getCard();
 
         boolean validation = card.validateCard();
+        boolean formValidation = mCardForm.isValid();
         final List<FoodModel> foods = shoppingCart.getMainFoods();
         final List<FoodModel> sideFood = shoppingCart.getAdditionalFoods();
         final List<Long> sideAmount = shoppingCart.getNumOfAdditionalFood();
         final List<Long> amount = shoppingCart.getNumOfMainFood();
-        if(validation) {
+        if(validation && formValidation) {
             startProgress("商品購買中");
             new Thread(new Runnable() {
                 @Override
@@ -154,12 +159,19 @@ public class PaymentActivity extends AppCompatActivity {
             }).start();
             return;
         } else if (!card.validateNumber()) {
-            Log.d("Stripe","The card number that you entered is invalid");
+            Snackbar.make(v, "信用卡號碼不正確", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
         } else if (!card.validateExpiryDate()) {
+            Snackbar.make(v, "信用卡有效日期錯誤", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
             Log.d("Stripe","The expiration date that you entered is invalid");
         } else if (!card.validateCVC()) {
+            Snackbar.make(v, "信用卡CVC代碼錯誤", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
             Log.d("Stripe","The CVC code that you entered is invalid");
         } else {
+            Snackbar.make(v, "輸入信用卡資訊不正確", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
             Log.d("Stripe","The card details that you entered are invalid");
         }
         Toast.makeText(PaymentActivity.this, "無效的信用卡", Toast.LENGTH_SHORT).show();
