@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.toolers.toolers.PaymentActivity">
+    <LinearLayout
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="wrap_content">
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/restaurant_text_size_large"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:text="@string/information"/>
+                <EditText
+                    android:id="@+id/name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/name"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:ems="10"
+                    android:inputType="text" />
+
+                <EditText
+                    android:id="@+id/address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/address"
+                    android:textSize="@dimen/restaurant_text_size"
+                    android:ems="10"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:inputType="textPostalAddress" />
+                <EditText
+                    android:id="@+id/room_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/room_number"
+                    android:textSize="@dimen/restaurant_text_size"
+                    android:ems="10"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:inputType="number" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/credit_card_info"
+                    android:textSize="@dimen/restaurant_text_size_large"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:ems="10"/>
+                <com.braintreepayments.cardform.view.SupportedCardTypesView
+                    android:id="@+id/supported_card_types"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingTop="20dp" />
+
+                <com.braintreepayments.cardform.view.CardForm
+                    android:id="@+id/card_form"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/bt_margin"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal">
+                    <Button
+                        android:id="@+id/button"
+                        android:gravity="center"
+                        android:textSize="@dimen/restaurant_text_size"
+                        android:theme="@style/AppTheme.Button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/pay_now" />
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+        </ScrollView>
+
+
+
+    <EditText
+        android:id="@+id/credit_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="number"
+        android:text="4242424242424242"
+        tools:layout_editor_absoluteY="0dp"
+        tools:layout_editor_absoluteX="5dp" />
+
+    <EditText
+        android:id="@+id/cvv_number"
+        android:text="123"
+        android:layout_width="124dp"
+        android:layout_height="44dp"
+        android:ems="10"
+        android:inputType="number"
+        tools:layout_editor_absoluteY="0dp"
+        tools:layout_editor_absoluteX="241dp" />
+
+    <EditText
+        android:id="@+id/month_number"
+        android:text="12"
+        android:layout_width="52dp"
+        android:layout_height="43dp"
+        android:ems="10"
+        android:inputType="number"
+        tools:layout_editor_absoluteY="55dp"
+        tools:layout_editor_absoluteX="241dp" />
+
+    <EditText
+        android:id="@+id/year_number"
+        android:layout_width="55dp"
+        android:text="2019"
+        android:layout_height="46dp"
+        android:ems="10"
+        android:inputType="number"
+        tools:layout_editor_absoluteY="55dp"
+        tools:layout_editor_absoluteX="307dp" />
+
+
+
+    <EditText
+        android:id="@+id/number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="number"
+        tools:layout_editor_absoluteY="266dp"
+        tools:layout_editor_absoluteX="5dp" />
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

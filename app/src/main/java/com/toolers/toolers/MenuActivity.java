@@ -58,7 +58,7 @@ public class MenuActivity extends AppCompatActivity {
     private ArrayList<FoodModel> foods;
     private CounterFab counterFab;
     private ProgressBar progressBar;
-
+    private int total;
     // Data Model
     private ShoppingCartModel shoppingCart;
     private String returnType;
@@ -82,6 +82,13 @@ public class MenuActivity extends AppCompatActivity {
         counterFab = (CounterFab)findViewById(R.id.fab_menu); // setCount(10);
         counterFab.setCount(shoppingCart.getAdditionalFoods().size() + shoppingCart.getMainFoods().size());
         counterFab.setOnClickListener(new View.OnClickListener() {
+//=======
+//        selectButton = (FloatingActionButton) findViewById(R.id.fab_menu);
+//        total = 0;
+//        counterFab = (CounterFab)findViewById(R.id.fab_menu); // setCount(10);
+//        counterFab.setCount(total);
+//        selectButton.setOnClickListener(new View.OnClickListener() {
+//>>>>>>> origin/stripe_payment
             @Override
             public void onClick(View view) {
                 if(returnType.equals(MENU_ACTIVITY))
@@ -221,6 +228,8 @@ public class MenuActivity extends AppCompatActivity {
     public void addFoodToCart(FoodModel food, long numOfFood) {
         shoppingCart.addFood(food, numOfFood);
         counterFab.increase();
+        counterFab.setCount(counterFab.getCount()+(int)numOfFood);
+
         Toast.makeText(this, "新增 " + food.getName() + " * " + numOfFood, Toast.LENGTH_SHORT).show();
     }
 

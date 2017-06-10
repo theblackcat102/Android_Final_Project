@@ -28,6 +28,8 @@
         <activity
             android:name=".CheckoutActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".PaymentActivity"></activity>
     </application>
 
 </manifest>

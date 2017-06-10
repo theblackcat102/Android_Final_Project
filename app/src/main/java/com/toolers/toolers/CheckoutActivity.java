@@ -15,6 +15,8 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.stripe.android.model.Card;
+import com.stripe.android.view.CardInputWidget;
 import com.toolers.toolers.adapter.CheckOutMainAdapter;
 import com.toolers.toolers.model.OrderModel;
 import com.toolers.toolers.model.RestaurantModel;
@@ -40,6 +42,9 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import static com.toolers.toolers.MenuActivity.EXTRA_SHOPPING_CART;
+
+
 public class CheckoutActivity extends AppCompatActivity {
     private static final String TAG = "CheckoutActivity";
     private static final int REQUEST_CODE = 2;
@@ -55,6 +60,8 @@ public class CheckoutActivity extends AppCompatActivity {
     // Data Model
     private ShoppingCartModel shoppingCart;
     private List<RestaurantModel> additionalRestaurant;
+    private Card card;
+    private CardInputWidget mCardInputWidget;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +89,15 @@ public class CheckoutActivity extends AppCompatActivity {
         }
         getAdditionRestaurant();
         updateOrderCost();
+        Button paymentBtn = (Button)findViewById(R.id.payment_btn);
+        checkout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent checkoutActivity  = new Intent(getApplicationContext(), PaymentActivity.class);
+                checkoutActivity.putExtra(EXTRA_SHOPPING_CART, shoppingCart);
+                startActivity(checkoutActivity);
+            }
+        });
     }
 
     @Override
@@ -93,6 +109,17 @@ public class CheckoutActivity extends AppCompatActivity {
                 updateOrderCost();
             }
         }
+
+//=======
+//        shoppingCart = getIntent().getExtras().getParcelable(EXTRA_SHOPPING_CART);
+//        Log.d(TAG, "onCreate");
+//        mainList = (ListView) findViewById(R.id.main_list);
+//        mainAdapter = new CheckOutMainAdapter(this).
+//                setData(shoppingCart.getMainFoods(), shoppingCart.getNumOfMainFood());
+//        mainList.setAdapter(mainAdapter);
+//
+//        additionalList = (ListView) findViewById(R.id.additional_list);
+//>>>>>>> origin/stripe_payment
     }
 
     @Override

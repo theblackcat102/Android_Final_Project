@@ -32,7 +32,8 @@ public class OrderModel {
     private String phone;
     private OrderItemModel orders[];
 
-    private OrderModel() {
+
+    public OrderModel() {
         id = "";
         time = new Date();
         status = "";
