@@ -227,7 +227,6 @@ public class MenuActivity extends AppCompatActivity {
 
     public void addFoodToCart(FoodModel food, long numOfFood) {
         shoppingCart.addFood(food, numOfFood);
-        counterFab.increase();
         counterFab.setCount(counterFab.getCount()+(int)numOfFood);
 
         Toast.makeText(this, "新增 " + food.getName() + " * " + numOfFood, Toast.LENGTH_SHORT).show();

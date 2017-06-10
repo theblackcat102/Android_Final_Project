@@ -88,10 +88,28 @@ public class PaymentActivity extends AppCompatActivity {
         startProgress("Validating Credit Card");
         boolean validation = card.validateCard();
         final List<FoodModel> foods = shoppingCart.getMainFoods();
+        final List<FoodModel> sideFood = shoppingCart.getAdditionalFoods();
+        List<Long> sideAmount = shoppingCart.getNumOfAdditionalFood();
         List<Long> amount = shoppingCart.getNumOfMainFood();
         finishProgress();
         if(validation){
             orderModel.build(shoppingCart,getUserModel()); // TODO : 建了然後要怎麼發送？
+            for(final FoodModel side:sideFood){
+                for(int j=0;j<sideAmount.size();j++){
+                    new Stripe(this.getApplicationContext(), PUBLISHABLE_KEY).createToken(
+                            card,
+                            new TokenCallback() {
+                                @Override
+                                public void onError(Exception error) {
+                                    Log.d("Stripe", error.toString());
+                                }
+                                @Override
+                                public void onSuccess(Token token) {
+                                    charge(token,side);
+                                }
+                            });
+                }
+            }
             for(final FoodModel food:foods) {
                 for (int j = 0; j < amount.size(); j++) {
                     new Stripe(this.getApplicationContext(), PUBLISHABLE_KEY).createToken(
