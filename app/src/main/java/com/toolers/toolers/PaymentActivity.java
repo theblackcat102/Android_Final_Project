@@ -190,7 +190,10 @@ public class PaymentActivity extends AppCompatActivity {
 
                 ParseCloud.callFunctionInBackground("purchaseItem", params, new FunctionCallback<Object>() {
                     public void done(Object response, ParseException e) {
-                        // TODO
+                        if(response != null)
+                            Log.d(TAG, response.toString());
+                        else
+                            Log.d(TAG, "response null");
                     }
                 });
     }
